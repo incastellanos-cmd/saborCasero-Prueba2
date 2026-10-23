@@ -1,9 +1,25 @@
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { obtenerProductoPorId } from "../data/datos";
+import { useCarrito } from "../context/CarritoContext";
+import { useAuth } from "../context/AuthContext";
 
 function DetalleProducto() {
   const { id } = useParams();
+  const { agregar } = useCarrito();
+  const { usuario, rol, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const producto = obtenerProductoPorId(id);
+
+  const agregarAlCarrito = () => {
+    if (rol !== "cliente") {
+      // Una sesión de otro rol cerraría el paso a /login, así que se cierra primero
+      if (usuario) logout();
+      navigate("/login", { state: { desde: location.pathname } });
+      return;
+    }
+    agregar(producto);
+  };
 
   if (!producto) {
     return (
@@ -35,7 +51,7 @@ function DetalleProducto() {
           </p>
           <p>Stock disponible: {producto.stock}</p>
 
-          <button className="btn btn-success">
+          <button className="btn btn-success" onClick={agregarAlCarrito}>
             Agregar al carrito
           </button>
         </div>

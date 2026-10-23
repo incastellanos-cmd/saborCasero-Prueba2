@@ -5,22 +5,34 @@ import Catalogo from './components/Catalogo';
 import Categorias from './components/Categorias';
 import DetalleProducto from './components/DetalleProducto';
 
-const Carrito = () => <div className="container mt-4"><h1>Carrito de Compras</h1></div>;
-const Admin = () => <div className="container mt-4"><h1>Panel de Administración</h1></div>;
+import Carrito from './views/Carrito';
+import Pedidos from './views/Pedidos';
+import { CarritoProvider } from './context/CarritoContext';
+import { AuthProvider } from './context/AuthContext';
+import Admin from './views/Admin';
+import Login from './views/Login';
+import RutaProtegida from './components/RutaProtegida';
+
 
 function App() {
   return (
+    <AuthProvider>
+    <CarritoProvider>
     <Router>
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/catalogo" element={<Catalogo />} />
         <Route path="/categorias" element={<Categorias />} />
         <Route path="/producto/:id" element={<DetalleProducto />} />
-        <Route path="/carrito" element={<Carrito />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/carrito" element={<RutaProtegida roles={['cliente']}><Carrito /></RutaProtegida>} />
+        <Route path="/pedidos" element={<RutaProtegida><Pedidos /></RutaProtegida>} />
+        <Route path="/admin" element={<RutaProtegida roles={['admin']}><Admin /></RutaProtegida>} />
       </Routes>
     </Router>
+    </CarritoProvider>
+    </AuthProvider>
   );
 }
 

@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, it } from 'vitest';
 import {
   actualizarProducto,
   crearProducto,
@@ -7,7 +8,7 @@ import {
 } from '../../src/data/datos.js';
 
 const productoDePrueba = {
-  id: 'TEST-JASMINE',
+  id: 'TEST-VITEST',
   nombre: 'Producto de prueba',
   categoria: 'Prueba',
   tiempo_prep: 1,

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { ESTADOS, MIGRACION, puedeAvanzar } from '../data/roles';
+import { obtenerPrecioFinal } from '../data/tienda';
 import { useAuth } from './AuthContext';
 
 const CLAVE_CARRITO = 'sc_carrito';
@@ -62,7 +63,8 @@ export const CarritoProvider = ({ children }) => {
         {
           id: producto.id,
           nombre: producto.nombre,
-          precio: producto.precio,
+          precio: obtenerPrecioFinal(producto),
+          precioOriginal: producto.precio,
           imagen: producto.imagen,
           stock: producto.stock,
           cantidad: 1,
@@ -86,14 +88,21 @@ export const CarritoProvider = ({ children }) => {
   const cantidadTotal = items.reduce((suma, i) => suma + i.cantidad, 0);
 
   // Convierte el carrito en un pedido con estado inicial "pedido"
-  const crearPedido = () => {
+  const crearPedido = (detalles = {}) => {
     if (rol !== 'cliente' || items.length === 0) return null;
     const ahora = new Date().toISOString();
+    const costoEntrega = Number(detalles.costoEntrega) || 0;
     const pedido = {
       id: `PED${Date.now()}`,
       cliente: usuario.usuario,
       items,
-      total,
+      total: total + costoEntrega,
+      nombreContacto: detalles.nombreContacto ?? usuario.nombre,
+      email: detalles.email ?? usuario.email ?? '',
+      telefono: detalles.telefono ?? usuario.telefono ?? '',
+      direccion: detalles.direccion ?? '',
+      metodoEntrega: detalles.metodoEntrega ?? 'delivery',
+      costoEntrega,
       estado: ESTADOS[0],
       historial: [{ estado: ESTADOS[0], fecha: ahora }],
     };

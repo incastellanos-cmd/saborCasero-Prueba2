@@ -2,24 +2,36 @@
 import { useState } from "react";
 import { obtenerProductos } from "../data/datos";
 import { Link } from "react-router-dom";
+import { filtrarProductos, obtenerPrecioFinal } from "../data/tienda";
 
 function Categorias() {
 
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todas");
+  const [busqueda, setBusqueda] = useState("");
 
   const productos = obtenerProductos();
 
   const categorias = ["Todas", ...new Set(productos.map(producto => producto.categoria))];
 
-  const productosFiltrados = categoriaSeleccionada === "Todas"
-    ? productos
-    : productos.filter(producto => producto.categoria === categoriaSeleccionada);
+  const productosFiltrados = filtrarProductos(productos, busqueda, categoriaSeleccionada);
 
     
   return (
     <div className="container mt-4">
       <h1>Categorías</h1>
       <p>Selecciona una categoría para ver nuestros productos.</p>
+
+      <div className="mb-4 mx-auto" style={{ maxWidth: 520 }}>
+        <label htmlFor="buscar-productos" className="form-label">Buscar productos</label>
+        <input
+          id="buscar-productos"
+          className="form-control"
+          type="search"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          placeholder="Busca por nombre o categoría"
+        />
+      </div>
 
       <div className="mb-4">
         {categorias.map(categoria => (
@@ -56,13 +68,20 @@ function Categorias() {
                     {producto.nombre}
                   </Link>
                 </h5>
-                <p>Precio: ${producto.precio.toLocaleString("es-CL")}</p>
+                <p>
+                  Precio:{' '}
+                  {producto.precioOferta < producto.precio && (
+                    <del className="text-muted me-1">${producto.precio.toLocaleString("es-CL")}</del>
+                  )}
+                  ${obtenerPrecioFinal(producto).toLocaleString("es-CL")}
+                </p>
                 <p>Tiempo de preparación: {producto.tiempo_prep} minutos</p>
               </div>
             </div>
           </div>
         ))}
       </div>
+      {productosFiltrados.length === 0 && <p className="text-muted">No encontramos productos con esa búsqueda.</p>}
     </div>
   );
 }

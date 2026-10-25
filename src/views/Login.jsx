@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { USUARIOS_DEMO, useAuth } from '../context/AuthContext';
 import { ROLES } from '../data/roles';
 
@@ -23,9 +23,10 @@ const Login = () => {
   return (
     <div className="container mt-5" style={{ maxWidth: 420 }}>
       <h1 className="mb-3">Iniciar sesión</h1>
+      {location.state?.aviso && <p className="alert alert-success">{location.state.aviso}</p>}
       <form onSubmit={enviar}>
         <div className="mb-3">
-          <label htmlFor="usuario" className="form-label">Usuario</label>
+          <label htmlFor="usuario" className="form-label">Usuario o correo electrónico</label>
           <input id="usuario" className="form-control" value={usuario} onChange={(e) => setUsuario(e.target.value)} autoFocus required />
         </div>
         <div className="mb-3">
@@ -35,6 +36,7 @@ const Login = () => {
         {error && <div className="alert alert-danger py-2">{error}</div>}
         <button className="btn btn-success w-100" type="submit">Entrar</button>
       </form>
+      <p className="mt-3">¿No tienes cuenta? <Link to="/registro">Regístrate</Link>.</p>
       <div className="card mt-4">
         <div className="card-header small">Cuentas de demostración</div>
         <ul className="list-group list-group-flush small">

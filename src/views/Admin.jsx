@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useCarrito } from '../context/CarritoContext';
 import { COLORES, ESTADOS, ETIQUETAS } from '../data/roles';
 import { actualizarProducto, crearProducto, eliminarProducto, obtenerProductos } from '../data/datos';
+import { obtenerMensajes } from '../data/mensajes';
 
 const VACIO = { id: '', nombre: '', categoria: '', tiempo_prep: 5, precio: 0, stock: 0, imagen: '' };
 
@@ -127,6 +128,48 @@ const PanelProductos = () => {
   );
 };
 
+const PanelMensajes = () => {
+  const [mensajes, setMensajes] = useState([]);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const cargar = () => {
+      try {
+        setMensajes(obtenerMensajes());
+        setError('');
+      } catch {
+        setError('No se pudieron cargar los mensajes guardados.');
+      }
+    };
+
+    cargar();
+    window.addEventListener('storage', cargar);
+    return () => window.removeEventListener('storage', cargar);
+  }, []);
+
+  if (error) return <p className="alert alert-danger">{error}</p>;
+  if (mensajes.length === 0) return <p className="text-muted">No hay mensajes guardados.</p>;
+
+  return (
+    <div className="row g-3">
+      {mensajes.map((mensaje) => (
+        <article className="col-12" key={mensaje.id}>
+          <div className="card">
+            <div className="card-header d-flex flex-wrap justify-content-between gap-2">
+              <strong>{mensaje.nombre}</strong>
+              <time dateTime={mensaje.fecha}>{new Date(mensaje.fecha).toLocaleString('es-CL')}</time>
+            </div>
+            <div className="card-body text-start">
+              <p><a href={`mailto:${mensaje.email}`}>{mensaje.email}</a></p>
+              <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>{mensaje.mensaje}</p>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+};
+
 const PanelRoles = () => {
   const { roles, rolesBase, usuarios, usuario, agregarRol, eliminarRol, agregarUsuario, eliminarUsuario } = useAuth();
   const [nombreRol, setNombreRol] = useState('');
@@ -193,7 +236,7 @@ const PanelRoles = () => {
   );
 };
 
-const PESTAÑAS = { pedidos: ['Pedidos', PanelPedidos], productos: ['Productos', PanelProductos], roles: ['Roles y usuarios', PanelRoles] };
+const PESTAÑAS = { pedidos: ['Pedidos', PanelPedidos], productos: ['Productos', PanelProductos], mensajes: ['Mensajes', PanelMensajes], roles: ['Roles y usuarios', PanelRoles] };
 
 const Admin = () => {
   const [pestaña, setPestaña] = useState('pedidos');

@@ -2,6 +2,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { obtenerProductoPorId } from "../data/datos";
 import { useCarrito } from "../context/CarritoContext";
 import { useAuth } from "../context/AuthContext";
+import { obtenerPrecioFinal } from "../data/tienda";
 
 function DetalleProducto() {
   const { id } = useParams();
@@ -44,7 +45,11 @@ function DetalleProducto() {
           <h1>{producto.nombre}</h1>
           <p>Categoría: {producto.categoria}</p>
           <h3>
-            Precio: ${producto.precio.toLocaleString("es-CL")}
+            Precio:{' '}
+            {producto.precioOferta < producto.precio && (
+              <del className="text-muted me-1">${producto.precio.toLocaleString("es-CL")}</del>
+            )}
+            ${obtenerPrecioFinal(producto).toLocaleString("es-CL")}
           </h3>
           <p>
             Tiempo de preparación: {producto.tiempo_prep} minutos

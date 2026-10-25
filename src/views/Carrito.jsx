@@ -1,15 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useCarrito } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
 
 const Carrito = () => {
   const { rol } = useAuth();
-  const { items, total, cambiarCantidad, quitar, vaciar, crearPedido } = useCarrito();
-  const navigate = useNavigate();
-
-  const realizarPedido = () => {
-    if (crearPedido()) navigate('/pedidos');
-  };
+  const { items, total, cambiarCantidad, quitar, vaciar } = useCarrito();
 
   if (items.length === 0) {
     return (
@@ -52,7 +47,7 @@ const Carrito = () => {
       <h4 className="text-end">Total: ${total.toLocaleString('es-CL')}</h4>
       <div className="d-flex justify-content-end gap-2">
         <button className="btn btn-outline-secondary" onClick={vaciar}>Vaciar</button>
-        <button className="btn btn-success" disabled={rol !== 'cliente'} title={rol !== 'cliente' ? 'Solo el cliente puede realizar pedidos' : ''} onClick={realizarPedido}>Realizar pedido</button>
+        <Link className={`btn btn-success${rol !== 'cliente' ? ' disabled' : ''}`} aria-disabled={rol !== 'cliente'} to={rol === 'cliente' ? '/checkout' : '/login'}>Continuar al pago</Link>
       </div>
     </div>
   );

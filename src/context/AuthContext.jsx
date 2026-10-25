@@ -59,10 +59,31 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem(CLAVE_ROLES, JSON.stringify(roles));
   }, [roles]);
 
+  useEffect(() => {
+    const sincronizarUsuarios = (e) => {
+      if (e.key === CLAVE_USUARIOS) setUsuarios(leerUsuarios());
+    };
+
+    window.addEventListener('storage', sincronizarUsuarios);
+    return () => window.removeEventListener('storage', sincronizarUsuarios);
+  }, []);
+
   const login = (usuario, clave) => {
-    const encontrado = usuarios.find((u) => u.usuario === usuario.trim().toLowerCase() && u.clave === clave);
+    const usuariosActualizados = leerUsuarios();
+    setUsuarios(usuariosActualizados);
+    const identificador = usuario.trim().toLowerCase();
+    const encontrado = usuariosActualizados.find((u) => (
+      (u.usuario === identificador || u.email?.trim().toLowerCase() === identificador) && u.clave === clave
+    ));
     if (!encontrado) return false;
-    const datos = { usuario: encontrado.usuario, rol: encontrado.rol, nombre: encontrado.nombre };
+    const datos = {
+      usuario: encontrado.usuario,
+      rol: encontrado.rol,
+      nombre: encontrado.nombre,
+      email: encontrado.email ?? '',
+      telefono: encontrado.telefono ?? '',
+      direccion: encontrado.direccion ?? '',
+    };
     localStorage.setItem(CLAVE_SESION, JSON.stringify(datos));
     setSesion(datos);
     return true;
@@ -89,10 +110,22 @@ export const AuthProvider = ({ children }) => {
     });
     setUsuarios((prev) => prev.filter((u) => u.rol !== id));
   };
-  const agregarUsuario = ({ usuario, clave, rol, nombre }) => {
+  const agregarUsuario = ({ usuario, clave, rol, nombre, email = '', telefono = '', direccion = '' }) => {
     const id = usuario.trim().toLowerCase();
-    if (!id || !clave || !roles[rol] || usuarios.some((u) => u.usuario === id)) return false;
-    setUsuarios((prev) => [...prev, { usuario: id, clave, rol, nombre: nombre.trim() || id }]);
+    const usuariosActualizados = leerUsuarios();
+    if (!id || !clave || !roles[rol] || usuariosActualizados.some((u) => u.usuario === id)) return false;
+    const nuevoUsuario = {
+      usuario: id,
+      clave,
+      rol,
+      nombre: nombre.trim() || id,
+      email: email.trim(),
+      telefono: telefono.trim(),
+      direccion: direccion.trim(),
+    };
+    const listaActualizada = [...usuariosActualizados, nuevoUsuario];
+    localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(listaActualizada));
+    setUsuarios(listaActualizada);
     return true;
   };
   const eliminarUsuario = (id) => {

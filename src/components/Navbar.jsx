@@ -33,6 +33,12 @@ const Navbar = () => {
             <li className="nav-item">
               <Link className="nav-link" to="/categorias">Categorías</Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/ofertas">Ofertas</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/contacto">Contacto</Link>
+            </li>
           </ul>
           <div className="d-flex align-items-center">
             {usuario ? (
